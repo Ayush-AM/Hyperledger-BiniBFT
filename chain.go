@@ -1,9 +1,9 @@
 package main
 
 import (
-	smart "github.com/SmartBFT-Go/consensus/pkg/api"
+	smart "smartbft-poc/consensus/pkg/api"
 
-	"github.com/SmartBFT-Go/consensus/pkg/wal"
+	"smartbft-poc/consensus/pkg/wal"
 )
 
 type Chain struct {

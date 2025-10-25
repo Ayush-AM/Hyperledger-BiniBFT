@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	smart "github.com/SmartBFT-Go/consensus/pkg/api"
-	"github.com/SmartBFT-Go/consensus/pkg/metrics/disabled"
-	"github.com/SmartBFT-Go/consensus/pkg/wal"
+	smart "smartbft-poc/consensus/pkg/api"
+	"smartbft-poc/consensus/pkg/metrics/disabled"
+	"smartbft-poc/consensus/pkg/wal"
+	"time"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	log.SetFormatter(customFormatter)
 	customFormatter.FullTimestamp = true
-	numNodes := 4
+	numNodes := 5
 	networkOpts := NetworkOptions{
 		NumNodes:     numNodes,
 		BatchSize:    10,

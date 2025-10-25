@@ -10,11 +10,19 @@ import (
 	"crypto/x509/pkix"
 	"encoding/hex"
 	"fmt"
-	smart "github.com/SmartBFT-Go/consensus/pkg/api"
-	smartbft "github.com/SmartBFT-Go/consensus/pkg/consensus"
-	bft "github.com/SmartBFT-Go/consensus/pkg/types"
-	"github.com/SmartBFT-Go/consensus/pkg/wal"
-	"github.com/SmartBFT-Go/consensus/smartbftprotos"
+	"io"
+	"math/big"
+	"net"
+	"net/http"
+	smart "smartbft-poc/consensus/pkg/api"
+	smartbft "smartbft-poc/consensus/pkg/consensus"
+	bft "smartbft-poc/consensus/pkg/types"
+	"smartbft-poc/consensus/pkg/wal"
+	"smartbft-poc/consensus/smartbftprotos"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
@@ -23,13 +31,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
-	"io"
-	"math/big"
-	"net"
-	"net/http"
-	"strconv"
-	"sync"
-	"time"
 )
 
 type Node struct {
@@ -118,7 +119,7 @@ func NewNode(
 		CollectTimeout:                time.Second,
 		SyncOnStart:                   false,
 		SpeedUpViewChange:             false,
-		LeaderRotation:                true,
+		LeaderRotation:                false,
 		DecisionsPerLeader:            3,
 		RequestMaxBytes:               10 * 1024,
 		RequestPoolSubmitTimeout:      5 * time.Second,

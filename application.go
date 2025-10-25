@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	bft "github.com/SmartBFT-Go/consensus/pkg/types"
-	"github.com/SmartBFT-Go/consensus/smartbftprotos"
+	bft "smartbft-poc/consensus/pkg/types"
+	"smartbft-poc/consensus/smartbftprotos"
+	"strconv"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb/opt"
-	"strconv"
 )
 
 // store blocks in LevelDB

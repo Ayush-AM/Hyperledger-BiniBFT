@@ -1,6 +1,6 @@
 package main
 
-import bft "github.com/SmartBFT-Go/consensus/pkg/types"
+import bft "smartbft-poc/consensus/pkg/types"
 
 func (*Node) VerifyProposal(proposal bft.Proposal) ([]bft.RequestInfo, error) {
 	blockData := BlockDataFromBytes(proposal.Payload)

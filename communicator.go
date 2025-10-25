@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/SmartBFT-Go/consensus/smartbftprotos"
+	"net/http"
+	"smartbft-poc/consensus/smartbftprotos"
+	"strconv"
+	"time"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type Communicator struct {
@@ -101,6 +102,16 @@ func (c Communicator) Nodes() []uint64 {
 	nodes := make([]uint64, 0, len(c.mapNodes))
 	for id := range c.mapNodes {
 		nodes = append(nodes, id)
+	}
+
+	// Sort nodes to ensure deterministic order across all nodes
+	// This is critical for hierarchical consensus role assignment
+	for i := 0; i < len(nodes); i++ {
+		for j := i + 1; j < len(nodes); j++ {
+			if nodes[i] > nodes[j] {
+				nodes[i], nodes[j] = nodes[j], nodes[i]
+			}
+		}
 	}
 
 	return nodes

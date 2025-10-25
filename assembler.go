@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	bft "github.com/SmartBFT-Go/consensus/pkg/types"
-	"github.com/SmartBFT-Go/consensus/smartbftprotos"
+	bft "smartbft-poc/consensus/pkg/types"
+	"smartbft-poc/consensus/smartbftprotos"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 )

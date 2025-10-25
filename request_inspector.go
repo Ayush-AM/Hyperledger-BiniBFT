@@ -1,6 +1,6 @@
 package main
 
-import bft "github.com/SmartBFT-Go/consensus/pkg/types"
+import bft "smartbft-poc/consensus/pkg/types"
 
 func (*Node) RequestID(req []byte) bft.RequestInfo {
 	txn := TransactionFromBytes(req)

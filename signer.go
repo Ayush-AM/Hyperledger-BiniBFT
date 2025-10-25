@@ -1,6 +1,6 @@
 package main
 
-import bft "github.com/SmartBFT-Go/consensus/pkg/types"
+import bft "smartbft-poc/consensus/pkg/types"
 
 func (*Node) Sign(msg []byte) []byte {
 	return nil

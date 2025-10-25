@@ -4,7 +4,6 @@ module smartbft-poc
 go 1.21
 
 require (
-	github.com/SmartBFT-Go/consensus v0.0.0-20231206083457-f8b15a205b36
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.5.0
