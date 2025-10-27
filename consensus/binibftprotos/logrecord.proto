@@ -5,9 +5,9 @@
 
 syntax = "proto3";
 
-option go_package = "smartbft-poc/consensus/smartbftprotos";
+option go_package = "binibft-poc/consensus/binibftprotos";
 
-package smartbftprotos;
+package binibftprotos;
 
 
 message LogRecord {

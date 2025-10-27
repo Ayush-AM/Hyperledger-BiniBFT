@@ -15,9 +15,9 @@ import (
 	"strings"
 	"sync"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/metrics/disabled"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/metrics/disabled"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"

@@ -1,9 +1,9 @@
 package main
 
 import (
-	smart "smartbft-poc/consensus/pkg/api"
+	smart "github.com/hyperledger/binibft-poc/consensus/pkg/api"
 
-	"smartbft-poc/consensus/pkg/wal"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/wal"
 )
 
 type Chain struct {

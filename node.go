@@ -14,14 +14,15 @@ import (
 	"math/big"
 	"net"
 	"net/http"
-	smart "smartbft-poc/consensus/pkg/api"
-	smartbft "smartbft-poc/consensus/pkg/consensus"
-	bft "smartbft-poc/consensus/pkg/types"
-	"smartbft-poc/consensus/pkg/wal"
-	"smartbft-poc/consensus/smartbftprotos"
 	"strconv"
 	"sync"
 	"time"
+
+	smart "github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	smartbft "github.com/hyperledger/binibft-poc/consensus/pkg/consensus"
+	bft "github.com/hyperledger/binibft-poc/consensus/pkg/types"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/wal"
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/proto"
@@ -132,7 +133,7 @@ func NewNode(
 		mapNodes:          mapNodes,
 		cachedHttpClients: make(map[uint64]*http.Client),
 	}
-	metadata := &smartbftprotos.ViewMetadata{
+	metadata := &binibftprotos.ViewMetadata{
 		LatestSequence: 0,
 		ViewId:         0,
 	}
@@ -143,7 +144,13 @@ func NewNode(
 		if err != nil {
 			log.Warnf(fmt.Sprintf("Unable to unmarshal metadata, error: %v", err))
 		}
-		log.Infof("Node %d found latest block with sequence %v", id, metadata.LatestSequence)
+		// Initialize prevHash with the hash of the latest block
+		node.prevHash = computeDigest(block.ToBytes())
+		log.Infof("Node %d found latest block with sequence %v, prevHash: %s", id, metadata.LatestSequence, node.prevHash)
+	} else {
+		// No previous block exists, initialize with empty hash (genesis block)
+		node.prevHash = ""
+		log.Infof("Node %d starting with genesis block, prevHash: empty", id)
 	}
 
 	node.consensus = &smartbft.Consensus{
@@ -213,8 +220,8 @@ func (n *Node) getCommServer() *http3.Server {
 			w.WriteHeader(500)
 			return
 		}
-		// parse to smartbftprotos.Message
-		msg := &smartbftprotos.Message{}
+		// parse to binibftprotos.Message
+		msg := &binibftprotos.Message{}
 		err = proto.Unmarshal(request, msg)
 		if err != nil {
 			log.Warnf(fmt.Sprintf("Error unmarshaling proto.message: %s", err))

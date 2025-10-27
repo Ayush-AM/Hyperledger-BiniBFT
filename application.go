@@ -1,9 +1,9 @@
 package main
 
 import (
+	bft "github.com/hyperledger/binibft-poc/consensus/pkg/types"
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 	"fmt"
-	bft "smartbft-poc/consensus/pkg/types"
-	"smartbft-poc/consensus/smartbftprotos"
 	"strconv"
 
 	"github.com/golang/protobuf/proto"
@@ -14,7 +14,7 @@ import (
 // store blocks in LevelDB
 func (n *Node) Deliver(proposal bft.Proposal, signature []bft.Signature) bft.Reconfig {
 	blockData := BlockDataFromBytes(proposal.Payload)
-	metadata := &smartbftprotos.ViewMetadata{}
+	metadata := &binibftprotos.ViewMetadata{}
 	if err := proto.Unmarshal(proposal.Metadata, metadata); err != nil {
 		panic(fmt.Sprintf("Unable to unmarshal metadata, error: %v", err))
 	}
@@ -49,7 +49,10 @@ func (n *Node) Deliver(proposal bft.Proposal, signature []bft.Signature) bft.Rec
 	if err != nil {
 		log.Panicf("Error storing latest block: %v", err)
 	}
-	log.Infof("Node %d stored block with sequence %v", n.id, header.Sequence)
+
+	// Update prevHash for the next block
+	n.prevHash = computeDigest(block.ToBytes())
+	log.Infof("Node %d stored block with sequence %v, updated prevHash: %s", n.id, header.Sequence, n.prevHash)
 
 	return bft.Reconfig{
 		InLatestDecision: false, // has the configuration changed?

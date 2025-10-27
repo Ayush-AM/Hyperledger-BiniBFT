@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"smartbft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
 )
 
 var padTable [][]byte

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 	"bytes"
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"smartbft-poc/consensus/smartbftprotos"
 	"strconv"
 	"time"
 
@@ -21,7 +21,7 @@ type Communicator struct {
 	cachedHttpClients map[uint64]*http.Client
 }
 
-func (c Communicator) SendConsensus(targetID uint64, m *smartbftprotos.Message) {
+func (c Communicator) SendConsensus(targetID uint64, m *binibftprotos.Message) {
 	nodeInfo, ok := c.mapNodes[targetID]
 	if !ok {
 		log.Warnf(fmt.Sprintf("Node %d not found in configuration", targetID))

@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"sync"
 
-	"smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 )
 
 type Proposal struct {
@@ -74,20 +74,20 @@ type Checkpoint struct {
 	signatures []Signature
 }
 
-func (c *Checkpoint) Get() (*smartbftprotos.Proposal, []*smartbftprotos.Signature) {
+func (c *Checkpoint) Get() (*binibftprotos.Proposal, []*binibftprotos.Signature) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 
-	p := &smartbftprotos.Proposal{
+	p := &binibftprotos.Proposal{
 		Header:               c.proposal.Header,
 		Payload:              c.proposal.Payload,
 		Metadata:             c.proposal.Metadata,
 		VerificationSequence: uint64(c.proposal.VerificationSequence),
 	}
 
-	signatures := make([]*smartbftprotos.Signature, 0, len(c.signatures))
+	signatures := make([]*binibftprotos.Signature, 0, len(c.signatures))
 	for _, sig := range c.signatures {
-		signatures = append(signatures, &smartbftprotos.Signature{
+		signatures = append(signatures, &binibftprotos.Signature{
 			Msg:    sig.Msg,
 			Value:  sig.Value,
 			Signer: sig.ID,

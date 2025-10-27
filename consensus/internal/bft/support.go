@@ -6,8 +6,8 @@
 package bft
 
 import (
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 )
 
 // Generate mocks for a collection of interfaces that are defined in api/dependencies.go
@@ -38,7 +38,7 @@ type ApplicationMock interface {
 //go:generate mockery -dir . -name CommMock -case underscore -output ./mocks/
 type CommMock interface {
 	api.Comm
-	BroadcastConsensus(m *smartbftprotos.Message)
+	BroadcastConsensus(m *binibftprotos.Message)
 }
 
 // SynchronizerMock mock for the Synchronizer interface

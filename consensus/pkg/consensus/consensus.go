@@ -12,11 +12,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	algorithm "smartbft-poc/consensus/internal/bft"
-	bft "smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/metrics/disabled"
-	"smartbft-poc/consensus/pkg/types"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	algorithm "github.com/hyperledger/binibft-poc/consensus/internal/bft"
+	bft "github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/metrics/disabled"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/types"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"

@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/types"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/types"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 )
 
 // StateCollector collects the current state from other nodes

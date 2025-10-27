@@ -12,9 +12,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/types"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/types"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
@@ -354,22 +354,25 @@ func (v *View) run() {
 }
 
 func (v *View) doPhase() {
-	v.Logger.Debugf("Node %d in phase %s", v.SelfID, v.Phase.String())
+	v.Logger.Infof("Node %d doPhase() called in phase %s, role=%v", v.SelfID, v.Phase.String(), v.MyRole)
 	switch v.Phase {
 	case PROPOSED:
 		// Send hierarchically instead of broadcasting to all nodes
 		v.sendHierarchically(v.lastBroadcastSent)
+		v.Logger.Infof("Node %d calling processPrepares()", v.SelfID)
 		v.Phase = v.processPrepares()
-		v.Logger.Debugf("Node %d transitioned to phase %s", v.SelfID, v.Phase.String())
+		v.Logger.Infof("Node %d transitioned to phase %s", v.SelfID, v.Phase.String())
 	case PREPARED:
 		// Send hierarchically instead of broadcasting to all nodes
 		v.sendHierarchically(v.lastBroadcastSent)
+		v.Logger.Infof("Node %d calling prepared() method", v.SelfID)
 		v.Phase = v.prepared()
-		v.Logger.Debugf("Node %d transitioned to phase %s", v.SelfID, v.Phase.String())
+		v.Logger.Infof("Node %d transitioned to phase %s", v.SelfID, v.Phase.String())
 	case COMMITTED:
 		v.Phase = v.processProposal()
-		v.Logger.Debugf("Node %d transitioned to phase %s", v.SelfID, v.Phase.String())
+		v.Logger.Infof("Node %d transitioned to phase %s", v.SelfID, v.Phase.String())
 	case ABORT:
+		v.Logger.Infof("Node %d doPhase() returning due to ABORT", v.SelfID)
 		return
 	default:
 		v.Logger.Panicf("Unknown phase in view : %v", v)
@@ -838,15 +841,19 @@ func (v *View) checkFollowerMajorityAndForward(m *protos.Message, msgForNextProp
 }
 
 func (v *View) prepared() Phase {
+	v.Logger.Infof("Node %d prepared() called, role=%v", v.SelfID, v.MyRole)
 	proposal := v.inFlightProposal
 	if proposal == nil {
 		v.Logger.Warnf("prepared called but inFlightProposal is nil, returning ABORT")
 		return ABORT
 	}
+	v.Logger.Infof("Node %d calling processCommits", v.SelfID)
 	signatures, phase := v.processCommits(proposal)
 	if phase == ABORT {
+		v.Logger.Warnf("Node %d processCommits returned ABORT", v.SelfID)
 		return ABORT
 	}
+	v.Logger.Infof("Node %d processCommits completed successfully", v.SelfID)
 
 	seq := v.ProposalSequence
 
@@ -958,6 +965,7 @@ func (v *View) createPrepare(seq uint64, proposal types.Proposal) *protos.Messag
 }
 
 func (v *View) processPrepares() Phase {
+	v.Logger.Infof("Node %d processPrepares() called, role=%v", v.SelfID, v.MyRole)
 	proposal := v.inFlightProposal
 	if proposal == nil {
 		v.Logger.Warnf("processPrepares called but inFlightProposal is nil, returning ABORT")
@@ -968,18 +976,24 @@ func (v *View) processPrepares() Phase {
 	var voterIDs []uint64
 	requiredVotes := v.getRequiredPreparesToProceed()
 
+	v.Logger.Infof("Node %d processPrepares: requiredVotes=%d, role=%v", v.SelfID, requiredVotes, v.MyRole)
+
 	for len(voterIDs) < requiredVotes {
+		v.Logger.Infof("Node %d waiting for prepares: have %d, need %d", v.SelfID, len(voterIDs), requiredVotes)
 		select {
 		case <-v.abortChan:
 			return ABORT
 		case msg := <-v.incMsgs:
+			v.Logger.Infof("Node %d processing incoming message in processPrepares from %d", v.SelfID, msg.sender)
 			v.processMsg(msg.sender, msg.Message)
 		case vote := <-v.getPreparesChannel():
 			if vote == nil || vote.Message == nil {
+				v.Logger.Debugf("Node %d received nil prepare vote", v.SelfID)
 				continue
 			}
 			prepare := vote.GetPrepare()
 			if prepare == nil {
+				v.Logger.Debugf("Node %d received vote with nil prepare", v.SelfID)
 				continue
 			}
 			if prepare.Digest != expectedDigest {
@@ -987,6 +1001,7 @@ func (v *View) processPrepares() Phase {
 				v.Logger.Warnf("Got wrong digest at processPrepares for prepare with seq %d, expecting %v but got %v, we are in seq %d", prepare.Seq, expectedDigest, prepare.Digest, seq)
 				continue
 			}
+			v.Logger.Infof("Node %d accepted prepare vote from %d", v.SelfID, vote.sender)
 			voterIDs = append(voterIDs, vote.sender)
 		}
 	}
@@ -1063,21 +1078,30 @@ func (v *View) processCommits(proposal *types.Proposal) ([]types.Signature, Phas
 	var voterIDs []uint64
 	requiredCommits := v.getRequiredCommitsToProceed()
 
+	v.Logger.Infof("Node %d processCommits: requiredCommits=%d, role=%v", v.SelfID, requiredCommits, v.MyRole)
+
 	for len(signatures) < requiredCommits {
+		v.Logger.Infof("Node %d waiting for commits: have %d, need %d", v.SelfID, len(signatures), requiredCommits)
 		select {
 		case <-v.abortChan:
+			v.Logger.Infof("Node %d processCommits aborted", v.SelfID)
 			return nil, ABORT
 		case msg := <-v.incMsgs:
+			v.Logger.Infof("Node %d processing incoming message in processCommits from %d", v.SelfID, msg.sender)
 			v.processMsg(msg.sender, msg.Message)
 		case vote := <-v.getCommitsChannel():
 			if vote == nil || vote.Message == nil {
+				v.Logger.Debugf("Node %d received nil vote in processCommits", v.SelfID)
 				continue
 			}
+			v.Logger.Infof("Node %d received commit vote from %d", v.SelfID, vote.sender)
 			// Valid votes end up written into the 'validVotes' channel.
-			go func(vote *protos.Message) {
+			go func(vote *protos.Message, sender uint64) {
+				v.Logger.Infof("Node %d verifying commit from %d", v.SelfID, sender)
 				signatureCollector.verifyVote(vote)
-			}(vote.Message)
+			}(vote.Message, vote.sender)
 		case signature := <-signatureCollector.validVotes:
+			v.Logger.Infof("Node %d accepted valid commit signature from %d", v.SelfID, signature.ID)
 			signatures = append(signatures, signature)
 			voterIDs = append(voterIDs, signature.ID)
 		}
@@ -1363,6 +1387,7 @@ type voteVerifier struct {
 }
 
 func (vv *voteVerifier) verifyVote(vote *protos.Message) {
+	vv.v.Logger.Infof("Node %d verifyVote called", vv.v.SelfID)
 	if vote == nil {
 		vv.v.Logger.Warnf("Got nil vote in verifyVote")
 		return
@@ -1372,21 +1397,24 @@ func (vv *voteVerifier) verifyVote(vote *protos.Message) {
 		vv.v.Logger.Warnf("Got nil commit in verifyVote")
 		return
 	}
+	vv.v.Logger.Infof("Node %d verifying commit from %d, digest match: %v", vv.v.SelfID, commit.Signature.Signer, commit.Digest == vv.expectedDigest)
 	if commit.Digest != vv.expectedDigest {
-		vv.v.Logger.Warnf("Got wrong digest at processCommits for seq %d", commit.Seq)
+		vv.v.Logger.Warnf("Got wrong digest at processCommits for seq %d, expected %s, got %s", commit.Seq, vv.expectedDigest, commit.Digest)
 		return
 	}
 
+	vv.v.Logger.Infof("Node %d calling VerifyConsenterSig for signer %d", vv.v.SelfID, commit.Signature.Signer)
 	_, err := vv.v.Verifier.VerifyConsenterSig(types.Signature{
 		ID:    commit.Signature.Signer,
 		Value: commit.Signature.Value,
 		Msg:   commit.Signature.Msg,
 	}, *vv.proposal)
 	if err != nil {
-		vv.v.Logger.Warnf("Couldn't verify %d's signature: %v", commit.Signature.Signer, err)
+		vv.v.Logger.Warnf("Node %d couldn't verify %d's signature: %v", vv.v.SelfID, commit.Signature.Signer, err)
 		return
 	}
 
+	vv.v.Logger.Infof("Node %d signature verification successful for %d, adding to validVotes", vv.v.SelfID, commit.Signature.Signer)
 	vv.validVotes <- types.Signature{
 		ID:    commit.Signature.Signer,
 		Value: commit.Signature.Value,

@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 )
 
 // A node could either be a leader or a follower
@@ -138,7 +138,7 @@ func (hm *HeartbeatMonitor) run() {
 
 // ProcessMsg handles an incoming heartbeat or heartbeat-response.
 // If the sender and msg.View equal what we expect, and the timeout had not expired yet, the timeout is extended.
-func (hm *HeartbeatMonitor) ProcessMsg(sender uint64, msg *smartbftprotos.Message) {
+func (hm *HeartbeatMonitor) ProcessMsg(sender uint64, msg *binibftprotos.Message) {
 	select {
 	case hm.inc <- incMsg{
 		sender:  sender,
@@ -149,7 +149,7 @@ func (hm *HeartbeatMonitor) ProcessMsg(sender uint64, msg *smartbftprotos.Messag
 }
 
 // InjectArtificialHeartbeat injects an artificial heartbeat to the monitor
-func (hm *HeartbeatMonitor) InjectArtificialHeartbeat(sender uint64, msg *smartbftprotos.Message) {
+func (hm *HeartbeatMonitor) InjectArtificialHeartbeat(sender uint64, msg *binibftprotos.Message) {
 	select {
 	case hm.artificialHeartbeat <- incMsg{
 		sender:  sender,
@@ -194,26 +194,26 @@ func (hm *HeartbeatMonitor) ChangeRole(follower Role, view uint64, leaderID uint
 	}
 }
 
-func (hm *HeartbeatMonitor) handleMsg(sender uint64, msg *smartbftprotos.Message) {
+func (hm *HeartbeatMonitor) handleMsg(sender uint64, msg *binibftprotos.Message) {
 	switch msg.GetContent().(type) {
-	case *smartbftprotos.Message_HeartBeat:
+	case *binibftprotos.Message_HeartBeat:
 		hm.handleRealHeartBeat(sender, msg.GetHeartBeat())
-	case *smartbftprotos.Message_HeartBeatResponse:
+	case *binibftprotos.Message_HeartBeatResponse:
 		hm.handleHeartBeatResponse(sender, msg.GetHeartBeatResponse())
 	default:
 		hm.logger.Warnf("Unexpected message type, ignoring")
 	}
 }
 
-func (hm *HeartbeatMonitor) handleRealHeartBeat(sender uint64, hb *smartbftprotos.HeartBeat) {
+func (hm *HeartbeatMonitor) handleRealHeartBeat(sender uint64, hb *binibftprotos.HeartBeat) {
 	hm.handleHeartBeat(sender, hb, false)
 }
 
-func (hm *HeartbeatMonitor) handleArtificialHeartBeat(sender uint64, hb *smartbftprotos.HeartBeat) {
+func (hm *HeartbeatMonitor) handleArtificialHeartBeat(sender uint64, hb *binibftprotos.HeartBeat) {
 	hm.handleHeartBeat(sender, hb, true)
 }
 
-func (hm *HeartbeatMonitor) handleHeartBeat(sender uint64, hb *smartbftprotos.HeartBeat, artificial bool) {
+func (hm *HeartbeatMonitor) handleHeartBeat(sender uint64, hb *binibftprotos.HeartBeat, artificial bool) {
 	if hb.View < hm.view {
 		hm.logger.Debugf("Heartbeat view is lower than expected, sending response; expected-view=%d, received-view: %d", hm.view, hb.View)
 		hm.sendHeartBeatResponse(sender)
@@ -257,7 +257,7 @@ func (hm *HeartbeatMonitor) handleHeartBeat(sender uint64, hb *smartbftprotos.He
 }
 
 // handleHeartBeatResponse keeps track of responses, and if we get f+1 identical, force a sync
-func (hm *HeartbeatMonitor) handleHeartBeatResponse(sender uint64, hbr *smartbftprotos.HeartBeatResponse) {
+func (hm *HeartbeatMonitor) handleHeartBeatResponse(sender uint64, hbr *binibftprotos.HeartBeatResponse) {
 	if hm.follower {
 		hm.logger.Debugf("Monitor is not a leader, ignoring HeartBeatResponse; sender: %d, msg: %v", sender, hbr)
 		return
@@ -286,9 +286,9 @@ func (hm *HeartbeatMonitor) handleHeartBeatResponse(sender uint64, hbr *smartbft
 }
 
 func (hm *HeartbeatMonitor) sendHeartBeatResponse(target uint64) {
-	heartbeatResponse := &smartbftprotos.Message{
-		Content: &smartbftprotos.Message_HeartBeatResponse{
-			HeartBeatResponse: &smartbftprotos.HeartBeatResponse{
+	heartbeatResponse := &binibftprotos.Message{
+		Content: &binibftprotos.Message_HeartBeatResponse{
+			HeartBeatResponse: &binibftprotos.HeartBeatResponse{
 				View: hm.view,
 			},
 		},
@@ -297,7 +297,7 @@ func (hm *HeartbeatMonitor) sendHeartBeatResponse(target uint64) {
 	hm.logger.Debugf("Sent HeartBeatResponse view: %d; to %d", hm.view, target)
 }
 
-func (hm *HeartbeatMonitor) viewActive(hbMsg *smartbftprotos.HeartBeat) (bool, uint64) {
+func (hm *HeartbeatMonitor) viewActive(hbMsg *binibftprotos.HeartBeat) (bool, uint64) {
 	vs := hm.viewSequences.Load()
 	// View isn't initialized
 	if vs == nil {
@@ -363,9 +363,9 @@ func (hm *HeartbeatMonitor) leaderTick(now time.Time) {
 		return
 	}
 	hm.logger.Debugf("Sending heartbeat with view %d, sequence %d", hm.view, sequence)
-	heartbeat := &smartbftprotos.Message{
-		Content: &smartbftprotos.Message_HeartBeat{
-			HeartBeat: &smartbftprotos.HeartBeat{
+	heartbeat := &binibftprotos.Message{
+		Content: &binibftprotos.Message_HeartBeat{
+			HeartBeat: &binibftprotos.HeartBeat{
 				View: hm.view,
 				Seq:  sequence,
 			},

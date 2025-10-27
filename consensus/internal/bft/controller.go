@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/types"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/types"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -260,7 +260,7 @@ func (c *Controller) addRequest(info types.RequestInfo, request []byte) error {
 		return err
 	}
 
-	c.Logger.Debugf("Request %s was submitted", info)
+	// c.Logger.Debugf("Request %s was submitted", info)
 
 	return nil
 }

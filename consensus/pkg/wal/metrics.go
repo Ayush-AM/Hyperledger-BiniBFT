@@ -1,8 +1,8 @@
 package wal
 
 import (
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/metrics"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/metrics"
 )
 
 var countOfFilesOpts = metrics.GaugeOpts{

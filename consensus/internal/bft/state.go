@@ -8,9 +8,9 @@ package bft
 import (
 	"fmt"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/types"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/types"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"

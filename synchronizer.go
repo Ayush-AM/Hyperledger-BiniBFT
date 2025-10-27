@@ -1,7 +1,7 @@
 package main
 
 import (
-	bft "smartbft-poc/consensus/pkg/types"
+	bft "github.com/hyperledger/binibft-poc/consensus/pkg/types"
 )
 
 func (*Node) Sync() bft.SyncResponse {

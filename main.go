@@ -1,10 +1,10 @@
 package main
 
 import (
+	smart "github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/metrics/disabled"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/wal"
 	"fmt"
-	smart "smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/metrics/disabled"
-	"smartbft-poc/consensus/pkg/wal"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -16,7 +16,7 @@ func main() {
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	log.SetFormatter(customFormatter)
 	customFormatter.FullTimestamp = true
-	numNodes := 5
+	numNodes := 10
 	networkOpts := NetworkOptions{
 		NumNodes:     numNodes,
 		BatchSize:    10,

@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"smartbft-poc/consensus/pkg/api"
-	"smartbft-poc/consensus/pkg/metrics/disabled"
-	"smartbft-poc/consensus/pkg/types"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/metrics/disabled"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/types"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/semaphore"

@@ -1,9 +1,9 @@
 package main
 
 import (
+	bft "github.com/hyperledger/binibft-poc/consensus/pkg/types"
+	"github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 	"fmt"
-	bft "smartbft-poc/consensus/pkg/types"
-	"smartbft-poc/consensus/smartbftprotos"
 
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
@@ -12,7 +12,7 @@ import (
 func (n *Node) AssembleProposal(metadata []byte, requests [][]byte) bft.Proposal {
 	log.Infof("Node %d assembling proposal with %d requests", n.id, len(requests))
 	blockData := BlockData{Transactions: requests}.ToBytes()
-	md := &smartbftprotos.ViewMetadata{}
+	md := &binibftprotos.ViewMetadata{}
 	if err := proto.Unmarshal(metadata, md); err != nil {
 		panic(fmt.Sprintf("Unable to unmarshal metadata, error: %v", err))
 	}

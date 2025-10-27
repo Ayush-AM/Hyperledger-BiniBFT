@@ -13,8 +13,8 @@ import (
 	"io"
 	"os"
 
-	"smartbft-poc/consensus/pkg/api"
-	protos "smartbft-poc/consensus/smartbftprotos"
+	"github.com/hyperledger/binibft-poc/consensus/pkg/api"
+	protos "github.com/hyperledger/binibft-poc/consensus/binibftprotos"
 
 	"github.com/golang/protobuf/proto"
 )

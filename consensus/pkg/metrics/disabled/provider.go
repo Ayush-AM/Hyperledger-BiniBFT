@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package disabled
 
 import (
-	bft "smartbft-poc/consensus/pkg/metrics"
+	bft "github.com/hyperledger/binibft-poc/consensus/pkg/metrics"
 )
 
 type Provider struct{}
